@@ -226,653 +226,352 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+
+    .subtab { border:1px solid var(--border); background:var(--surface); color:var(--muted); border-radius:12px; padding:10px 12px; font-size:13px; font-weight:750; flex:1; }
+    .subtab.active { background:var(--accent-soft); color:var(--accent); border-color:var(--accent); }
+    .recipe-card { border:1px solid var(--border); background:var(--surface); border-radius:18px; overflow:hidden; margin-bottom:14px; }
+    .recipe-head { padding:15px; display:flex; align-items:flex-start; gap:10px; justify-content:space-between; border-bottom:1px solid var(--border); }
+    .ingredient-row { display:flex; align-items:center; gap:10px; padding:11px 13px; border-bottom:1px solid var(--border); }
+    .ingredient-row:last-child { border-bottom:0; }
+    .ingredient-row .product-name { flex:1; min-width:0; }
+    .small-action { padding:7px 9px; border-radius:10px; background:var(--bg); color:var(--muted); font-size:13px; font-weight:700; }
+    .recipe-add { padding:12px; display:grid; grid-template-columns:minmax(0,1fr) 105px auto; gap:7px; border-top:1px solid var(--border); }
+    .recipe-add .field { padding:10px; }
+    .hidden-view { display:none !important; }
+    @media(max-width:380px) { .tab {font-size:11px;padding:11px 4px;} .recipe-add {grid-template-columns:minmax(0,1fr) 90px;} .recipe-add button {grid-column:1/-1;} }
+
     @media (min-width: 600px) {
       .app-container { max-width: 540px; margin: auto; }
     }
   </style>
-</head>
 
 <body>
   <div class="app-container">
-
-    <!-- En-tête -->
     <header class="px-5 pt-6 pb-4">
       <div class="flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center text-2xl">
-            🛒
-          </div>
-          <div>
-            <h1 class="text-2xl font-black tracking-tight">Mes Courses</h1>
-            <p class="text-sm muted mt-0.5">Ma liste, mes habitudes.</p>
-          </div>
+          <div class="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center text-2xl">🛒</div>
+          <div><h1 class="text-2xl font-black tracking-tight">Mes Courses</h1><p class="text-sm muted mt-0.5">Ma liste, mes habitudes.</p></div>
         </div>
-
-        <button id="themeBtn" class="icon-btn surface" aria-label="Changer de thème" title="Mode sombre ou clair">
-          <span id="themeIcon">🌙</span>
-        </button>
+        <button id="themeBtn" class="icon-btn surface" aria-label="Changer de thème" title="Mode sombre ou clair"><span id="themeIcon">🌙</span></button>
       </div>
     </header>
 
-    <!-- Onglets -->
-    <nav class="px-5 pb-5" aria-label="Catégories de courses">
+    <nav class="px-4 pb-4" aria-label="Rubriques principales">
       <div class="surface rounded-2xl p-1.5 flex gap-1">
-        <button class="tab active" data-tab="maison" aria-selected="true">
-          🏠 Maison
-        </button>
-        <button class="tab" data-tab="cameroun" aria-selected="false">
-          🇨🇲 Produits du Cameroun
-        </button>
+        <button class="tab active" data-tab="maison" aria-selected="true">🏠 Maison</button>
+        <button class="tab" data-tab="cameroun" aria-selected="false">🇨🇲 Cameroun</button>
+        <button class="tab" data-tab="recettes" aria-selected="false">🍲 Recettes</button>
       </div>
     </nav>
 
     <main class="px-5">
-
-      <!-- Résumé -->
-      <section class="surface rounded-2xl p-4 mb-5">
-        <div class="flex items-start justify-between gap-3">
-          <div>
-            <p id="listTitle" class="text-lg font-extrabold">Courses de la maison</p>
-            <p id="listSubtitle" class="text-sm muted mt-1">Tout ce qu'il faut au quotidien.</p>
+      <section id="shoppingView">
+        <section class="flex gap-2 mb-4" id="categoryTabs" aria-label="Sous-catégories"></section>
+        <section class="surface rounded-2xl p-4 mb-5">
+          <div class="flex items-start justify-between gap-3"><div><p id="listTitle" class="text-lg font-extrabold">Courses de la maison</p><p id="listSubtitle" class="text-sm muted mt-1">Tout ce qu'il faut au quotidien.</p></div><span class="text-2xl" id="listEmoji">🏠</span></div>
+          <div class="mt-4">
+            <div class="flex justify-between items-center text-sm mb-2"><span class="muted">Progression des sélections</span><strong id="progressText">0 / 0</strong></div>
+            <div class="h-2.5 rounded-full overflow-hidden" style="background:var(--border)"><div id="progressBar" class="h-full rounded-full bg-green-500 transition-all duration-300" style="width:0%"></div></div>
           </div>
-          <span class="text-2xl" id="listEmoji">🏠</span>
-        </div>
-
-        <div class="mt-4">
-          <div class="flex justify-between items-center text-sm mb-2">
-            <span class="muted">Progression des achats</span>
-            <strong id="progressText">0 / 0</strong>
+          <div class="grid grid-cols-2 gap-3 mt-4">
+            <div class="rounded-xl p-3" style="background:var(--bg)"><p class="text-xs muted">Non cochés</p><p id="remainingCount" class="text-2xl font-black mt-1">0</p></div>
+            <div class="rounded-xl p-3" style="background:var(--bg)"><p class="text-xs muted">Cochés / à acheter</p><p id="boughtCount" class="text-2xl font-black mt-1">0</p></div>
           </div>
-          <div class="h-2.5 rounded-full overflow-hidden" style="background:var(--border)">
-            <div id="progressBar" class="h-full rounded-full bg-green-500 transition-all duration-300" style="width:0%"></div>
+        </section>
+        <section class="mb-6">
+          <h2 class="text-base font-extrabold mb-3">Ajouter un produit</h2>
+          <form id="addForm" class="surface rounded-2xl p-3">
+            <label for="productInput" class="block text-sm font-semibold mb-2">Nom du produit</label>
+            <input id="productInput" class="field" type="text" maxlength="100" placeholder="Ex. : Lait, tomates, huile..." autocomplete="off" required>
+            <label for="quantityInput" class="block text-sm font-semibold mt-3 mb-2">Quantité / unité <span class="muted font-normal">(facultatif)</span></label>
+            <div class="flex gap-2"><input id="quantityInput" class="field" type="text" maxlength="60" placeholder="Ex. : 2 kg, 3 bouteilles"><button class="primary-btn" type="submit">+ Ajouter</button></div>
+          </form>
+        </section>
+        <section>
+          <div class="flex items-center justify-between gap-2 mb-3"><h2 class="text-base font-extrabold">Ma liste</h2><span class="pill" id="totalBadge">0 produit</span></div>
+          <div class="flex gap-2 mb-3">
+            <button id="filterAll" class="primary-btn flex-1 text-sm" type="button">Tous</button>
+            <button id="filterRemaining" class="surface rounded-xl px-3 py-2 text-sm font-bold flex-1" type="button">À acheter</button>
+            <button id="filterBought" class="surface rounded-xl px-3 py-2 text-sm font-bold flex-1" type="button">Cochés</button>
           </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 mt-4">
-          <div class="rounded-xl p-3" style="background:var(--bg)">
-            <p class="text-xs muted">À acheter</p>
-            <p id="remainingCount" class="text-2xl font-black mt-1">0</p>
+          <div id="productList" class="surface rounded-2xl overflow-hidden"></div>
+          <div class="mt-4 flex gap-2">
+            <button id="uncheckAllBtn" class="surface rounded-xl px-3 py-3 text-sm font-semibold flex-1" type="button">↩️ Tout décocher</button>
+            <button id="clearBoughtBtn" class="surface rounded-xl px-3 py-3 text-sm font-semibold flex-1" type="button">🧹 Retirer les cochés</button>
           </div>
-          <div class="rounded-xl p-3" style="background:var(--bg)">
-            <p class="text-xs muted">Déjà achetés</p>
-            <p id="boughtCount" class="text-2xl font-black mt-1">0</p>
-          </div>
-        </div>
+          <p class="text-xs muted text-center mt-5 leading-relaxed">🔒 Tes données sont enregistrées sur cet appareil.</p>
+        </section>
       </section>
 
-      <!-- Formulaire d'ajout -->
-      <section class="mb-6">
-        <h2 class="text-base font-extrabold mb-3">Ajouter un produit</h2>
-
-        <form id="addForm" class="surface rounded-2xl p-3">
-          <label for="productInput" class="block text-sm font-semibold mb-2">
-            Nom du produit
-          </label>
-          <input
-            id="productInput"
-            class="field"
-            type="text"
-            maxlength="100"
-            placeholder="Ex. : Lait, tomates, huile..."
-            autocomplete="off"
-            required
-          >
-
-          <label for="quantityInput" class="block text-sm font-semibold mt-3 mb-2">
-            Quantité / unité <span class="muted font-normal">(facultatif)</span>
-          </label>
-          <div class="flex gap-2">
-            <input
-              id="quantityInput"
-              class="field"
-              type="text"
-              maxlength="60"
-              placeholder="Ex. : 2 kg, 3 bouteilles"
-            >
-            <button class="primary-btn" type="submit">+ Ajouter</button>
-          </div>
+      <section id="recipesView" class="hidden-view">
+        <div class="mb-4"><h2 class="text-xl font-black">Mes recettes</h2><p class="text-sm muted mt-1">Coche les ingrédients que tu souhaites acheter.</p></div>
+        <form id="recipeForm" class="surface rounded-2xl p-3 mb-5">
+          <label for="recipeNameInput" class="block text-sm font-semibold mb-2">Nom de la nouvelle recette</label>
+          <div class="flex gap-2"><input id="recipeNameInput" class="field" maxlength="100" placeholder="Ex. : Riz sauté" required><button class="primary-btn" type="submit">+ Créer</button></div>
         </form>
-      </section>
-
-      <!-- Liste des produits -->
-      <section>
-        <div class="flex items-center justify-between gap-2 mb-3">
-          <h2 class="text-base font-extrabold">Ma liste</h2>
-          <span class="pill" id="totalBadge">0 produit</span>
-        </div>
-
-        <div class="flex gap-2 mb-3">
-          <button id="filterAll" class="primary-btn flex-1 text-sm" type="button">
-            Tous
-          </button>
-          <button id="filterRemaining" class="surface rounded-xl px-3 py-2 text-sm font-bold flex-1" type="button">
-            À acheter
-          </button>
-          <button id="filterBought" class="surface rounded-xl px-3 py-2 text-sm font-bold flex-1" type="button">
-            Achetés
-          </button>
-        </div>
-
-        <div id="productList" class="surface rounded-2xl overflow-hidden">
-          <div class="empty-state">
-            <div class="text-4xl mb-3">🧺</div>
-            <p class="font-bold">Ta liste est vide</p>
-            <p class="text-sm muted mt-1">Ajoute ton premier produit ci-dessus.</p>
-          </div>
-        </div>
-
-        <div class="mt-4 flex gap-2">
-          <button id="uncheckAllBtn" class="surface rounded-xl px-3 py-3 text-sm font-semibold flex-1" type="button">
-            ↩️ Tout décocher
-          </button>
-          <button id="clearBoughtBtn" class="surface rounded-xl px-3 py-3 text-sm font-semibold flex-1" type="button">
-            🧹 Retirer les achetés
-          </button>
-        </div>
-
-        <p class="text-xs muted text-center mt-5 leading-relaxed">
-          ⭐ Les produits les plus achetés remontent automatiquement en haut de la liste.
-        </p>
-        <p class="text-xs muted text-center mt-2">
-          🔒 Tes données sont enregistrées sur cet appareil.
-        </p>
+        <div id="recipeList"></div>
       </section>
     </main>
 
-    <!-- Partage fixe -->
-    <footer class="bottom-bar">
-      <div class="app-container">
-        <button id="shareBtn" class="w-full rounded-2xl py-4 px-4 font-extrabold text-white flex items-center justify-center gap-2 shadow-lg" style="background:#25D366; min-height:54px">
-          <span class="text-xl">☘</span>
-          Partager sur WhatsApp
-        </button>
-        <p class="text-center text-xs muted mt-2">Partage les deux listes en un seul message.</p>
-      </div>
-    </footer>
-
+    <footer class="bottom-bar"><div class="app-container">
+      <button id="shareBtn" class="w-full rounded-2xl py-4 px-4 font-extrabold text-white flex items-center justify-center gap-2 shadow-lg" style="background:#25D366; min-height:54px"><span class="text-xl">☘</span> Partager la sélection sur WhatsApp</button>
+      <p class="text-center text-xs muted mt-2">Uniquement les produits et ingrédients cochés.</p>
+    </div></footer>
     <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
   </div>
 
-  <script>
-    (() => {
-      "use strict";
-
-      const STORAGE_KEY = "mesCoursesApp_v1";
-
-      const DEFAULT_STATE = {
-        activeTab: "maison",
-        theme: "light",
-        filter: "all",
-        lists: {
-          maison: [],
-          cameroun: []
-        }
-      };
-
-      let state = loadState();
-      let toastTimer = null;
-
-      const $ = id => document.getElementById(id);
-
-      const tabs = {
-        maison: {
-          title: "Courses de la maison",
-          subtitle: "Tout ce qu'il faut au quotidien.",
-          emoji: "🏠"
-        },
-        cameroun: {
-          title: "Produits du Cameroun",
-          subtitle: "Les saveurs et produits du pays.",
-          emoji: "🇨🇲"
-        }
-      };
-
-      function loadState() {
-        try {
-          const saved = localStorage.getItem(STORAGE_KEY);
-          if (!saved) return structuredClone(DEFAULT_STATE);
-
-          const parsed = JSON.parse(saved);
-
-          return {
-            ...DEFAULT_STATE,
-            ...parsed,
-            lists: {
-              maison: Array.isArray(parsed.lists?.maison)
-                ? parsed.lists.maison : [],
-              cameroun: Array.isArray(parsed.lists?.cameroun)
-                ? parsed.lists.cameroun : []
-            }
-          };
-        } catch (error) {
-          console.error("Chargement des données impossible :", error);
-          return structuredClone(DEFAULT_STATE);
-        }
-      }
-
-      function saveState() {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        } catch (error) {
-          console.error("Sauvegarde impossible :", error);
-          showToast("Impossible de sauvegarder. Vérifie l'espace disponible.");
-        }
-      }
-
-      function currentList() {
-        return state.lists[state.activeTab];
-      }
-
-      function makeId() {
-        return Date.now().toString(36) +
-          Math.random().toString(36).slice(2, 9);
-      }
-
-      function escapeHTML(value) {
-        return String(value).replace(/[&<>"']/g, char => ({
-          "&": "&amp;",
-          "<": "&lt;",
-          ">": "&gt;",
-          '"': "&quot;",
-          "'": "&#39;"
-        })[char]);
-      }
-
-      function showToast(message) {
-        const toast = $("toast");
-        toast.textContent = message;
-        toast.classList.remove("hidden");
-
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toast.classList.add("hidden"), 2600);
-      }
-
-      function setTheme(theme) {
-        state.theme = theme;
-        document.body.classList.toggle("dark", theme === "dark");
-        $("themeIcon").textContent = theme === "dark" ? "☀️" : "🌙";
-        $("themeBtn").setAttribute(
-          "aria-label",
-          theme === "dark" ? "Passer au mode clair" : "Passer au mode sombre"
-        );
-
-        const themeColor = document.querySelector('meta[name="theme-color"]');
-        themeColor.content = theme === "dark" ? "#101713" : "#16a34a";
-
-        saveState();
-      }
-
-      function setTab(tab) {
-        if (!state.lists[tab]) return;
-
-        state.activeTab = tab;
-        state.filter = "all";
-        $("productInput").value = "";
-        $("quantityInput").value = "";
-
-        render();
-        saveState();
-      }
-
-      function sortProducts(products) {
-        return [...products].sort((a, b) => {
-          // Fréquence d'achat prioritaire, puis articles non achetés.
-          const frequencyDifference =
-            (Number(b.frequency) || 0) - (Number(a.frequency) || 0);
-
-          if (frequencyDifference !== 0) return frequencyDifference;
-          if (a.checked !== b.checked) return a.checked ? 1 : -1;
-
-          return (a.name || "").localeCompare(
-            b.name || "", "fr", { sensitivity: "base" }
-          );
-        });
-      }
-
-      function renderTabs() {
-        document.querySelectorAll("[data-tab]").forEach(button => {
-          const active = button.dataset.tab === state.activeTab;
-          button.classList.toggle("active", active);
-          button.setAttribute("aria-selected", String(active));
-        });
-      }
-
-      function renderSummary() {
-        const list = currentList();
-        const total = list.length;
-        const bought = list.filter(item => item.checked).length;
-        const remaining = total - bought;
-        const progress = total ? Math.round((bought / total) * 100) : 0;
-        const tab = tabs[state.activeTab];
-
-        $("listTitle").textContent = tab.title;
-        $("listSubtitle").textContent = tab.subtitle;
-        $("listEmoji").textContent = tab.emoji;
-        $("progressText").textContent = `${bought} / ${total}`;
-        $("progressBar").style.width = `${progress}%`;
-        $("remainingCount").textContent = remaining;
-        $("boughtCount").textContent = bought;
-        $("totalBadge").textContent =
-          `${total} produit${total !== 1 ? "s" : ""}`;
-      }
-
-      function renderFilters() {
-        const buttons = {
-          all: $("filterAll"),
-          remaining: $("filterRemaining"),
-          bought: $("filterBought")
-        };
-
-        Object.entries(buttons).forEach(([key, button]) => {
-          const active = state.filter === key;
-
-          button.classList.toggle("primary-btn", active);
-          button.classList.toggle("surface", !active);
-
-          if (active) {
-            button.style.color = "";
+<script>
+(() => {
+  "use strict";
+  const STORAGE_KEY = "mesCoursesApp_v1";
+  const CATEGORIES = {
+    maison: [
+      {id:"comestibles",label:"Comestibles"},
+      {id:"bebe",label:"Bébé"},
+      {id:"nonComestibles",label:"Non comestibles"}
+    ],
+    cameroun: [
+      {id:"comestibles",label:"Comestibles"},
+      {id:"nonComestibles",label:"Non comestibles"}
+    ]
+  };
+  const DEFAULT_STATE = {
+    activeTab:"maison", activeCategory:"comestibles", theme:"light", filter:"all",
+    lists:{maison:{comestibles:[],bebe:[],nonComestibles:[]},cameroun:{comestibles:[],nonComestibles:[]}},
+    recipes:[]
+  };
+  const $ = id => document.getElementById(id);
+  let toastTimer = null;
+  function makeId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,9); }
+  function cloneDefault(){ return JSON.parse(JSON.stringify(DEFAULT_STATE)); }
+  function normalizeItems(items){
+    if(!Array.isArray(items)) return [];
+    return items.filter(x=>x && typeof x==="object").map(x=>({
+      id:String(x.id || makeId()), name:String(x.name || "").slice(0,100),
+      quantity:String(x.quantity || "").slice(0,60), checked:Boolean(x.checked),
+      frequency:Number(x.frequency)||0, createdAt:Number(x.createdAt)||Date.now()
+    })).filter(x=>x.name.trim());
+  }
+  function loadState(){
+    try{
+      const raw=localStorage.getItem(STORAGE_KEY);
+      if(!raw) return cloneDefault();
+      const parsed=JSON.parse(raw), out=cloneDefault();
+      out.activeTab=["maison","cameroun","recettes"].includes(parsed.activeTab)?parsed.activeTab:"maison";
+      out.activeCategory=parsed.activeCategory || "comestibles";
+      out.theme=parsed.theme==="dark"?"dark":"light";
+      out.filter=["all","remaining","bought"].includes(parsed.filter)?parsed.filter:"all";
+      // Migration : les anciennes listes plates sont conservées dans « Comestibles ».
+      for(const tab of ["maison","cameroun"]){
+        const source=parsed.lists && parsed.lists[tab];
+        if(Array.isArray(source)){
+          out.lists[tab].comestibles=normalizeItems(source);
+        } else if(source && typeof source==="object"){
+          for(const cat of CATEGORIES[tab]){
+            out.lists[tab][cat.id]=normalizeItems(source[cat.id]);
           }
-        });
+        }
       }
-
-      function renderProducts() {
-        const container = $("productList");
-        const list = sortProducts(currentList());
-
-        const filtered = list.filter(item => {
-          if (state.filter === "remaining") return !item.checked;
-          if (state.filter === "bought") return item.checked;
-          return true;
-        });
-
-        if (filtered.length === 0) {
-          const message = currentList().length === 0
-            ? "Ajoute ton premier produit ci-dessus."
-            : state.filter === "remaining"
-              ? "Tous les produits sont achetés 🎉"
-              : state.filter === "bought"
-                ? "Aucun produit acheté pour le moment."
-                : "Aucun produit à afficher.";
-
-          container.innerHTML = `
-            <div class="empty-state">
-              <div class="text-4xl mb-3">${currentList().length ? "✨" : "🧺"}</div>
-              <p class="font-bold">${
-                currentList().length ? "Rien à afficher" : "Ta liste est vide"
-              }</p>
-              <p class="text-sm muted mt-1">${escapeHTML(message)}</p>
-            </div>`;
-          return;
-        }
-
-        container.innerHTML = filtered.map(item => `
-          <div class="product-row" data-id="${escapeHTML(item.id)}">
-            <input
-              type="checkbox"
-              class="product-check"
-              data-action="check"
-              aria-label="Marquer ${escapeHTML(item.name)} comme acheté"
-              ${item.checked ? "checked" : ""}
-            >
-
-            <div class="min-w-0 flex-1">
-              <div class="product-name ${item.checked ? "checked" : ""}">
-                ${escapeHTML(item.name)}
-              </div>
-              ${item.quantity ? `
-                <div class="text-xs muted mt-1">
-                  ${escapeHTML(item.quantity)}
-                </div>` : ""}
-              <div class="text-xs muted mt-1">
-                ${Number(item.frequency) || 0} achat(s)
-              </div>
-            </div>
-
-            <button
-              type="button"
-              class="icon-btn"
-              data-action="quantity"
-              aria-label="Modifier la quantité de ${escapeHTML(item.name)}"
-              title="Modifier la quantité"
-            >✏️</button>
-
-            <button
-              type="button"
-              class="icon-btn"
-              data-action="delete"
-              aria-label="Supprimer ${escapeHTML(item.name)}"
-              title="Supprimer"
-            >🗑️</button>
-          </div>
-        `).join("");
+      if(Array.isArray(parsed.recipes)){
+        out.recipes=parsed.recipes.filter(r=>r && typeof r==="object").map(r=>({
+          id:String(r.id||makeId()), name:String(r.name||"Nouvelle recette").slice(0,100),
+          ingredients:normalizeItems(r.ingredients)
+        }));
       }
+      if(!CATEGORIES[out.activeTab]?.some(c=>c.id===out.activeCategory)) out.activeCategory=CATEGORIES[out.activeTab]?.[0]?.id || "comestibles";
+      return out;
+    }catch(err){ console.error("Chargement impossible :",err); return cloneDefault(); }
+  }
+  let state=loadState();
+  function saveState(){
+    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+    catch(err){console.error("Sauvegarde impossible :",err);showToast("Sauvegarde impossible : espace de stockage indisponible.");}
+  }
+  function escapeHTML(value){return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+  function showToast(message){$("toast").textContent=message;$("toast").classList.remove("hidden");clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.add("hidden"),2800);}
+  function setTheme(theme){
+    state.theme=theme;document.body.classList.toggle("dark",theme==="dark");
+    $("themeIcon").textContent=theme==="dark"?"☀️":"🌙";
+    $("themeBtn").setAttribute("aria-label",theme==="dark"?"Passer au mode clair":"Passer au mode sombre");
+    document.querySelector('meta[name="theme-color"]').content=theme==="dark"?"#101713":"#16a34a";
+  }
+  function currentList(){return state.lists[state.activeTab][state.activeCategory];}
+  function renderTabs(){
+    document.querySelectorAll("[data-tab]").forEach(b=>{const active=b.dataset.tab===state.activeTab;b.classList.toggle("active",active);b.setAttribute("aria-selected",String(active));});
+    $("shoppingView").classList.toggle("hidden-view",state.activeTab==="recettes");
+    $("recipesView").classList.toggle("hidden-view",state.activeTab!=="recettes");
+  }
+  function setTab(tab){
+    if(!["maison","cameroun","recettes"].includes(tab))return;
+    state.activeTab=tab;state.filter="all";
+    if(tab!=="recettes"&&!CATEGORIES[tab].some(c=>c.id===state.activeCategory))state.activeCategory=CATEGORIES[tab][0].id;
+    render();saveState();
+  }
+  function renderCategories(){
+    const container=$("categoryTabs");
+    if(state.activeTab==="recettes"){container.innerHTML="";return;}
+    container.innerHTML=CATEGORIES[state.activeTab].map(c=>`<button type="button" class="subtab ${state.activeCategory===c.id?"active":""}" data-category="${c.id}">${escapeHTML(c.label)}</button>`).join("");
+  }
+  function renderSummary(){
+    const list=currentList(), checked=list.filter(x=>x.checked).length, total=list.length;
+    const tab=state.activeTab, cat=CATEGORIES[tab].find(c=>c.id===state.activeCategory);
+    $("listTitle").textContent=(tab==="maison"?"Maison":"Produits du Cameroun")+" · "+cat.label;
+    $("listSubtitle").textContent=tab==="maison"?"Tout ce qu'il faut au quotidien.":"Les produits et saveurs du Cameroun.";
+    $("listEmoji").textContent=tab==="maison"?"🏠":"🇨🇲";
+    $("progressText").textContent=checked+" / "+total;
+    $("progressBar").style.width=(total?Math.round(checked/total*100):0)+"%";
+    $("remainingCount").textContent=total-checked;$("boughtCount").textContent=checked;
+    $("totalBadge").textContent=total+" produit"+(total!==1?"s":"");
+  }
+  function renderFilters(){
+    const map={all:$("filterAll"),remaining:$("filterRemaining"),bought:$("filterBought")};
+    Object.entries(map).forEach(([k,b])=>{const active=state.filter===k;b.classList.toggle("primary-btn",active);b.classList.toggle("surface",!active);});
+  }
+  function sortProducts(items){return [...items].sort((a,b)=>(Number(b.frequency)||0)-(Number(a.frequency)||0)||Number(a.checked)-Number(b.checked)||a.name.localeCompare(b.name,"fr",{sensitivity:"base"}));}
+  function renderProducts(){
+    const all=currentList(), filtered=sortProducts(all).filter(x=>state.filter==="all"||(state.filter==="remaining"&&!x.checked)||(state.filter==="bought"&&x.checked));
+    if(!filtered.length){
+      const message=!all.length?"Ajoute ton premier produit ci-dessus.":state.filter==="remaining"?"Tous les produits sont cochés.":state.filter==="bought"?"Aucun produit coché pour le moment.":"Aucun produit à afficher.";
+      $("productList").innerHTML=`<div class="empty-state"><div class="text-4xl mb-3">🧺</div><p class="font-bold">Ta liste est vide</p><p class="text-sm muted mt-1">${escapeHTML(message)}</p></div>`;return;
+    }
+    $("productList").innerHTML=filtered.map(item=>`<div class="product-row" data-id="${escapeHTML(item.id)}">
+      <input type="checkbox" class="product-check" data-action="check" aria-label="Sélectionner ${escapeHTML(item.name)} pour les courses" ${item.checked?"checked":""}>
+      <div class="min-w-0 flex-1"><div class="product-name ${item.checked?"checked":""}">${escapeHTML(item.name)}</div>${item.quantity?`<div class="text-xs muted mt-1">${escapeHTML(item.quantity)}</div>`:""}</div>
+      <button type="button" class="icon-btn" data-action="edit" aria-label="Modifier ${escapeHTML(item.name)}" title="Modifier">✏️</button>
+      <button type="button" class="icon-btn" data-action="delete" aria-label="Supprimer ${escapeHTML(item.name)}" title="Supprimer">🗑️</button>
+    </div>`).join("");
+  }
+  function addProduct(name,quantity){
+    const clean=name.trim(), q=quantity.trim();
+    if(!clean){showToast("Saisis le nom d'un produit.");return false;}
+    const duplicate=currentList().find(x=>x.name.trim().toLocaleLowerCase("fr")===clean.toLocaleLowerCase("fr"));
+    if(duplicate){if(q)duplicate.quantity=q;duplicate.checked=false;showToast("Ce produit existe déjà : sa fiche a été mise à jour.");}
+    else{currentList().push({id:makeId(),name:clean,quantity:q,checked:false,frequency:0,createdAt:Date.now()});showToast("Produit ajouté à ta liste !");}
+    state.filter="all";saveState();render();return true;
+  }
+  function toggleItem(list,id,checked){
+    const item=list.find(x=>x.id===id);if(!item)return;
+    if(checked&&!item.checked)item.frequency=(Number(item.frequency)||0)+1;
+    item.checked=checked;saveState();render();
+  }
+  function editProduct(id){
+    const item=currentList().find(x=>x.id===id);if(!item)return;
+    const name=prompt("Nom du produit :",item.name);if(name===null)return;
+    const clean=name.trim();if(!clean){showToast("Le nom ne peut pas être vide.");return;}
+    const duplicate=currentList().find(x=>x.id!==id&&x.name.toLocaleLowerCase("fr")===clean.toLocaleLowerCase("fr"));
+    if(duplicate){showToast("Un produit portant ce nom existe déjà dans cette catégorie.");return;}
+    const quantity=prompt("Quantité / unité (facultatif) :",item.quantity||"");if(quantity===null)return;
+    item.name=clean.slice(0,100);item.quantity=quantity.trim().slice(0,60);saveState();render();showToast("Produit modifié.");
+  }
+  function deleteProduct(id){
+    const item=currentList().find(x=>x.id===id);if(!item)return;
+    if(!confirm(`Supprimer « ${item.name} » de cette liste ?`))return;
+    state.lists[state.activeTab][state.activeCategory]=currentList().filter(x=>x.id!==id);saveState();render();showToast("Produit supprimé.");
+  }
+  function renderRecipes(){
+    const host=$("recipeList");
+    if(!state.recipes.length){host.innerHTML='<div class="surface rounded-2xl empty-state"><div class="text-4xl mb-3">🍲</div><p class="font-bold">Aucune recette pour le moment</p><p class="text-sm muted mt-1">Crée une recette ci-dessus pour commencer.</p></div>';return;}
+    host.innerHTML=state.recipes.map(recipe=>`<article class="recipe-card" data-recipe-id="${escapeHTML(recipe.id)}">
+      <div class="recipe-head"><div class="min-w-0"><h3 class="font-extrabold text-lg break-words">${escapeHTML(recipe.name)}</h3><p class="text-xs muted mt-1">${recipe.ingredients.length} ingrédient${recipe.ingredients.length!==1?"s":""}</p></div>
+      <div class="flex gap-1"><button type="button" class="small-action" data-recipe-action="rename" aria-label="Modifier le nom de ${escapeHTML(recipe.name)}">✏️</button><button type="button" class="small-action" data-recipe-action="delete" aria-label="Supprimer ${escapeHTML(recipe.name)}">🗑️</button></div></div>
+      <div class="ingredients">${recipe.ingredients.length?recipe.ingredients.map(i=>`<div class="ingredient-row" data-ingredient-id="${escapeHTML(i.id)}">
+        <input type="checkbox" class="product-check" data-ingredient-action="check" aria-label="Sélectionner ${escapeHTML(i.name)} pour les courses" ${i.checked?"checked":""}>
+        <div class="product-name ${i.checked?"checked":""}">${escapeHTML(i.name)}${i.quantity?`<div class="text-xs muted mt-1">${escapeHTML(i.quantity)}</div>`:""}</div>
+        <button type="button" class="small-action" data-ingredient-action="edit" aria-label="Modifier ${escapeHTML(i.name)}">✏️</button>
+        <button type="button" class="small-action" data-ingredient-action="delete" aria-label="Supprimer ${escapeHTML(i.name)}">🗑️</button>
+      </div>`).join(""):'<p class="text-sm muted p-4">Aucun ingrédient. Ajoute-en ci-dessous.</p>'}</div>
+      <form class="recipe-add" data-ingredient-form>
+        <input class="field" name="ingredientName" maxlength="100" placeholder="Ingrédient" aria-label="Nom de l'ingrédient" required>
+        <input class="field" name="ingredientQuantity" maxlength="60" placeholder="Quantité" aria-label="Quantité ou unité">
+        <button type="submit" class="primary-btn">+ Ajouter</button>
+      </form>
+    </article>`).join("");
+  }
+  function render(){renderTabs();renderCategories();if(state.activeTab==="recettes")renderRecipes();else{renderSummary();renderFilters();renderProducts();}setTheme(state.theme);}
+  function addRecipe(name){
+    const clean=name.trim();if(!clean)return;
+    if(state.recipes.some(r=>r.name.toLocaleLowerCase("fr")===clean.toLocaleLowerCase("fr"))){showToast("Cette recette existe déjà.");return;}
+    state.recipes.push({id:makeId(),name:clean.slice(0,100),ingredients:[]});saveState();render();showToast("Recette créée.");
+  }
+  function recipeFor(card){return state.recipes.find(r=>r.id===card.dataset.recipeId);}
+  function editIngredient(recipe,id){
+    const item=recipe.ingredients.find(i=>i.id===id);if(!item)return;
+    const name=prompt("Nom de l'ingrédient :",item.name);if(name===null)return;
+    const clean=name.trim();if(!clean){showToast("Le nom ne peut pas être vide.");return;}
+    if(recipe.ingredients.some(i=>i.id!==id&&i.name.toLocaleLowerCase("fr")===clean.toLocaleLowerCase("fr"))){showToast("Cet ingrédient existe déjà dans cette recette.");return;}
+    const q=prompt("Quantité / unité (facultatif) :",item.quantity||"");if(q===null)return;
+    item.name=clean.slice(0,100);item.quantity=q.trim().slice(0,60);saveState();render();showToast("Ingrédient modifié.");
+  }
+  function buildWhatsAppMessage(){
+    const maison=CATEGORIES.maison.flatMap(c=>state.lists.maison[c.id].filter(x=>x.checked));
+    const cameroun=CATEGORIES.cameroun.flatMap(c=>state.lists.cameroun[c.id].filter(x=>x.checked));
+    const ingredients=state.recipes.flatMap(r=>r.ingredients.filter(i=>i.checked).map(i=>({...i,recipeName:r.name})));
+    if(!maison.length&&!cameroun.length&&!ingredients.length)return "";
+    const lines=["🛒 MA LISTE","━━━━━━━━━━━━━━━━━━"];
+    const addSection=(title,items,withRecipe=false)=>{
+      if(!items.length)return;
+      lines.push("",title);
+      items.forEach(i=>lines.push(`✓ ${i.name}${i.quantity?" — "+i.quantity:""}${withRecipe?" ("+i.recipeName+")":""}`));
+    };
+    addSection("🏠 MAISON",maison);
+    addSection("🇨🇲 PRODUITS DU CAMEROUN",cameroun);
+    addSection("🍲 INGRÉDIENTS DES RECETTES",ingredients,true);
+    return lines.join("\n");
+  }
+  function shareWhatsApp(){
+    const message=buildWhatsAppMessage();
+    if(!message){showToast("Coche au moins un produit ou ingrédient avant de partager.");return;}
+    const url="https://wa.me/?text="+encodeURIComponent(message);
+    window.open(url,"_blank","noopener,noreferrer");
+  }
 
-      function render() {
-        renderTabs();
-        renderSummary();
-        renderFilters();
-        renderProducts();
-        setTheme(state.theme);
-      }
-
-      function addProduct(name, quantity) {
-        const cleanName = name.trim();
-        const cleanQuantity = quantity.trim();
-
-        if (!cleanName) {
-          showToast("Saisis le nom d'un produit.");
-          return;
-        }
-
-        const existing = currentList().find(item =>
-          item.name.trim().toLocaleLowerCase("fr") ===
-          cleanName.toLocaleLowerCase("fr")
-        );
-
-        if (existing) {
-          if (cleanQuantity) {
-            existing.quantity = cleanQuantity;
-          }
-          existing.checked = false;
-          showToast("Ce produit existe déjà : sa fiche a été mise à jour.");
-        } else {
-          currentList().push({
-            id: makeId(),
-            name: cleanName,
-            quantity: cleanQuantity,
-            checked: false,
-            frequency: 0,
-            createdAt: Date.now()
-          });
-          showToast("Produit ajouté à ta liste !");
-        }
-
-        state.filter = "all";
-        saveState();
-        render();
-      }
-
-      function toggleProduct(id, checked) {
-        const product = currentList().find(item => item.id === id);
-        if (!product) return;
-
-        // La fréquence augmente uniquement lors d'un passage décoché -> coché.
-        if (checked && !product.checked) {
-          product.frequency = (Number(product.frequency) || 0) + 1;
-        }
-
-        product.checked = checked;
-        saveState();
-        render();
-      }
-
-      function editQuantity(id) {
-        const product = currentList().find(item => item.id === id);
-        if (!product) return;
-
-        const answer = window.prompt(
-          `Quantité / unité pour "${product.name}" :`,
-          product.quantity || ""
-        );
-
-        if (answer === null) return;
-
-        product.quantity = answer.trim().slice(0, 60);
-        saveState();
-        render();
-        showToast("Quantité mise à jour.");
-      }
-
-      function deleteProduct(id) {
-        const product = currentList().find(item => item.id === id);
-        if (!product) return;
-
-        if (!window.confirm(`Supprimer "${product.name}" de la liste ?`)) {
-          return;
-        }
-
-        state.lists[state.activeTab] =
-          currentList().filter(item => item.id !== id);
-
-        saveState();
-        render();
-        showToast("Produit supprimé.");
-      }
-
-
-      
-     
-
-
-function buildWhatsAppMessage() {
-  const checkedProducts = [
-    ...state.lists.maison,
-    ...state.lists.cameroun
-  ].filter(item => item.checked);
-
-  return [
-    "🛒 Ma liste",
-    "━━━━━━━━━━━━━━━━━━",
-    "",
-    ...checkedProducts.map(item =>
-      `✓ ${item.name}${item.quantity ? " — " + item.quantity : ""}`
-    )
-  ].join("\n");
-}
-
-
-
-
-
-      
-      function shareWhatsApp() {
-        const message = buildWhatsAppMessage();
-        const url = "https://wa.me/?text=" + encodeURIComponent(message);
-
-        // Ouvre WhatsApp ou WhatsApp Web avec le message prérempli.
-        window.location.href = url;
-      }
-
-      $("addForm").addEventListener("submit", event => {
-        event.preventDefault();
-
-        addProduct(
-          $("productInput").value,
-          $("quantityInput").value
-        );
-
-        $("productInput").value = "";
-        $("quantityInput").value = "";
-        $("productInput").focus();
-      });
-
-      document.querySelectorAll("[data-tab]").forEach(button => {
-        button.addEventListener("click", () => setTab(button.dataset.tab));
-      });
-
-      $("themeBtn").addEventListener("click", () => {
-        setTheme(state.theme === "dark" ? "light" : "dark");
-      });
-
-      $("productList").addEventListener("change", event => {
-        const checkbox = event.target.closest('[data-action="check"]');
-        if (!checkbox) return;
-
-        const row = checkbox.closest("[data-id]");
-        if (row) toggleProduct(row.dataset.id, checkbox.checked);
-      });
-
-      $("productList").addEventListener("click", event => {
-        const button = event.target.closest("[data-action]");
-        if (!button) return;
-
-        const row = button.closest("[data-id]");
-        if (!row) return;
-
-        if (button.dataset.action === "quantity") {
-          editQuantity(row.dataset.id);
-        }
-
-        if (button.dataset.action === "delete") {
-          deleteProduct(row.dataset.id);
-        }
-      });
-
-      $("filterAll").addEventListener("click", () => {
-        state.filter = "all";
-        render();
-      });
-
-      $("filterRemaining").addEventListener("click", () => {
-        state.filter = "remaining";
-        render();
-      });
-
-      $("filterBought").addEventListener("click", () => {
-        state.filter = "bought";
-        render();
-      });
-
-      $("uncheckAllBtn").addEventListener("click", () => {
-        currentList().forEach(item => item.checked = false);
-        saveState();
-        render();
-        showToast("Tous les produits ont été décochés.");
-      });
-
-      $("clearBoughtBtn").addEventListener("click", () => {
-        const boughtCount = currentList().filter(item => item.checked).length;
-
-        if (!boughtCount) {
-          showToast("Aucun produit acheté à retirer.");
-          return;
-        }
-
-        if (!window.confirm(
-          `Retirer ${boughtCount} produit(s) acheté(s) de cette liste ?\n\nLeur historique de fréquence sera supprimé avec eux.`
-        )) {
-          return;
-        }
-
-        state.lists[state.activeTab] =
-          currentList().filter(item => !item.checked);
-
-        saveState();
-        render();
-        showToast("Les produits achetés ont été retirés.");
-      });
-
-      $("shareBtn").addEventListener("click", shareWhatsApp);
-
-      // Mise à jour visuelle lors d'un retour dans l'application.
-      document.addEventListener("visibilitychange", () => {
-        if (!document.hidden) render();
-      });
-
-      // Initialisation.
-      setTheme(state.theme);
-      render();
-    })();
-  </script>
+  $("themeBtn").addEventListener("click",()=>{state.theme=state.theme==="dark"?"light":"dark";setTheme(state.theme);saveState();});
+  document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
+  $("categoryTabs").addEventListener("click",e=>{const b=e.target.closest("[data-category]");if(!b)return;state.activeCategory=b.dataset.category;state.filter="all";saveState();render();});
+  $("addForm").addEventListener("submit",e=>{e.preventDefault();if(addProduct($("productInput").value,$("quantityInput").value)){ $("productInput").value="";$("quantityInput").value="";$("productInput").focus();}});
+  $("productList").addEventListener("change",e=>{const box=e.target.closest('[data-action="check"]');if(box){const row=box.closest("[data-id]");if(row)toggleItem(currentList(),row.dataset.id,box.checked);}});
+  $("productList").addEventListener("click",e=>{const b=e.target.closest("[data-action]");if(!b)return;const row=b.closest("[data-id]");if(!row)return;if(b.dataset.action==="edit")editProduct(row.dataset.id);if(b.dataset.action==="delete")deleteProduct(row.dataset.id);});
+  [["filterAll","all"],["filterRemaining","remaining"],["filterBought","bought"]].forEach(([id,f])=>$(id).addEventListener("click",()=>{state.filter=f;render();saveState();}));
+  $("uncheckAllBtn").addEventListener("click",()=>{currentList().forEach(i=>i.checked=false);saveState();render();showToast("Tous les produits ont été décochés.");});
+  $("clearBoughtBtn").addEventListener("click",()=>{const count=currentList().filter(i=>i.checked).length;if(!count){showToast("Aucun produit coché à retirer.");return;}if(!confirm(`Retirer ${count} produit(s) coché(s) de cette catégorie ?`))return;state.lists[state.activeTab][state.activeCategory]=currentList().filter(i=>!i.checked);saveState();render();showToast("Les produits cochés ont été retirés.");});
+  $("recipeForm").addEventListener("submit",e=>{e.preventDefault();addRecipe($("recipeNameInput").value);$("recipeNameInput").value="";});
+  $("recipeList").addEventListener("submit",e=>{
+    const form=e.target.closest("[data-ingredient-form]");if(!form)return;e.preventDefault();
+    const card=form.closest("[data-recipe-id]"),recipe=card&&recipeFor(card);if(!recipe)return;
+    const name=form.elements.ingredientName.value.trim(),quantity=form.elements.ingredientQuantity.value.trim();if(!name)return;
+    if(recipe.ingredients.some(i=>i.name.toLocaleLowerCase("fr")===name.toLocaleLowerCase("fr"))){showToast("Cet ingrédient existe déjà dans cette recette.");return;}
+    recipe.ingredients.push({id:makeId(),name:name.slice(0,100),quantity:quantity.slice(0,60),checked:false,frequency:0,createdAt:Date.now()});saveState();render();showToast("Ingrédient ajouté.");
+  });
+  $("recipeList").addEventListener("change",e=>{
+    const box=e.target.closest('[data-ingredient-action="check"]');if(!box)return;
+    const card=box.closest("[data-recipe-id]"),row=box.closest("[data-ingredient-id]"),recipe=card&&recipeFor(card);if(!recipe||!row)return;
+    toggleItem(recipe.ingredients,row.dataset.ingredientId,box.checked);
+  });
+  $("recipeList").addEventListener("click",e=>{
+    const b=e.target.closest("[data-recipe-action],[data-ingredient-action]");if(!b)return;
+    const card=b.closest("[data-recipe-id]"),recipe=card&&recipeFor(card);if(!recipe)return;
+    if(b.dataset.recipeAction==="rename"){
+      const name=prompt("Nouveau nom de la recette :",recipe.name);if(name===null)return;const clean=name.trim();if(!clean){showToast("Le nom ne peut pas être vide.");return;}
+      if(state.recipes.some(r=>r.id!==recipe.id&&r.name.toLocaleLowerCase("fr")===clean.toLocaleLowerCase("fr"))){showToast("Une recette porte déjà ce nom.");return;}
+      recipe.name=clean.slice(0,100);saveState();render();showToast("Recette renommée.");return;
+    }
+    if(b.dataset.recipeAction==="delete"){
+      if(!confirm(`Supprimer la recette « ${recipe.name} » et tous ses ingrédients ?`))return;
+      state.recipes=state.recipes.filter(r=>r.id!==recipe.id);saveState();render();showToast("Recette supprimée.");return;
+    }
+    const row=b.closest("[data-ingredient-id]");if(!row)return;const id=row.dataset.ingredientId;
+    if(b.dataset.ingredientAction==="edit")editIngredient(recipe,id);
+    if(b.dataset.ingredientAction==="delete"){
+      const item=recipe.ingredients.find(i=>i.id===id);if(!item)return;
+      if(!confirm(`Supprimer l'ingrédient « ${item.name} » ?`))return;
+      recipe.ingredients=recipe.ingredients.filter(i=>i.id!==id);saveState();render();showToast("Ingrédient supprimé.");
+    }
+  });
+  $("shareBtn").addEventListener("click",shareWhatsApp);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)render();});
+  setTheme(state.theme);render();
+})();
+</script>
 </body>
 </html>
