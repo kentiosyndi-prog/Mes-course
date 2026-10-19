@@ -742,36 +742,26 @@
 
       
      
+
 function buildWhatsAppMessage() {
-  const categories = [
-    { key: "maison", title: "🏠 Maison" },
-    { key: "cameroun", title: "🇨🇲 Produits du Cameroun" }
+  const checkedProducts = [
+    ...state.lists.maison,
+    ...state.lists.cameroun
+  ].filter(item => item.checked);
+
+  const lines = [
+    "MES LISTES DE COURSES",
+    "",
+    ...checkedProducts.map(item =>
+      `✓ ${item.name}${item.quantity ? " — " + item.quantity : ""}`
+    ),
+    "",
+    "Envoyé depuis mon application Mes Courses."
   ];
 
-  const lines = [];
-
-  for (const category of categories) {
-    const bought = state.lists[category.key].filter(item => item.checked);
-
-    if (bought.length > 0) {
-      lines.push(category.title);
-      lines.push("");
-
-      bought.forEach(item => {
-        const quantity = item.quantity ? ` — ${item.quantity}` : "";
-        lines.push(`✅ ${item.name}${quantity}`);
-      });
-
-      lines.push("");
-    }
-  }
-
-  if (lines.length === 0) {
-    return "⚠️ Tu n'as coché aucun produit à partager.";
-  }
-
-  return "🛒 *Mes courses achetées*\n\n" + lines.join("\n").trim();
+  return lines.join("\n");
 }
+
 
 
 
