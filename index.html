@@ -743,23 +743,21 @@
       
      
 
+
 function buildWhatsAppMessage() {
   const checkedProducts = [
     ...state.lists.maison,
     ...state.lists.cameroun
   ].filter(item => item.checked);
 
-  const lines = [
-    "Ma Liste",
+  return [
+    "🛒 Ma liste",
+    "━━━━━━━━━━━━━━━━━━",
     "",
     ...checkedProducts.map(item =>
       `✓ ${item.name}${item.quantity ? " — " + item.quantity : ""}`
-    ),
-    "",
-    "Envoyé depuis mon application Mes Courses."
-  ];
-
-  return lines.join("\n");
+    )
+  ].join("\n");
 }
 
 
