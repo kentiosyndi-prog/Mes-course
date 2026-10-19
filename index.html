@@ -739,64 +739,44 @@
         showToast("Produit supprimé.");
       }
 
-      function buildWhatsAppMessage() {
-        const lines = [
-          "🛒 *MES LISTES DE COURSES*",
-          "━━━━━━━━━━━━━━━━━━"
-        ];
 
-        const categories = [
-          { key: "maison", title: "🏠 *MAISON*" },
-          { key: "cameroun", title: "🇨🇲 *PRODUITS DU CAMEROUN*" }
-        ];
+      
+     
+function buildWhatsAppMessage() {
+  const categories = [
+    { key: "maison", title: "🏠 Maison" },
+    { key: "cameroun", title: "🇨🇲 Produits du Cameroun" }
+  ];
 
-        for (const category of categories) {
-          const list = sortProducts(state.lists[category.key]);
-          const remaining = list.filter(item => !item.checked);
-          const bought = list.filter(item => item.checked);
+  const lines = [];
 
-          lines.push("");
-          lines.push(category.title);
-          lines.push("");
+  for (const category of categories) {
+    const bought = state.lists[category.key].filter(item => item.checked);
 
-          if (remaining.length) {
-            lines.push("📝 *À ACHETER*");
+    if (bought.length > 0) {
+      lines.push(category.title);
+      lines.push("");
 
-            remaining.forEach(item => {
-              const quantity = item.quantity
-                ? ` — ${item.quantity}`
-                : "";
-              lines.push(`☐ ${item.name}${quantity}`);
-            });
-          } else {
-            lines.push("📝 À acheter : rien pour le moment.");
-          }
+      bought.forEach(item => {
+        const quantity = item.quantity ? ` — ${item.quantity}` : "";
+        lines.push(`✅ ${item.name}${quantity}`);
+      });
 
-          if (bought.length) {
-            lines.push("");
-            lines.push("✅ *DÉJÀ ACHETÉS*");
+      lines.push("");
+    }
+  }
 
-            bought.forEach(item => {
-              const quantity = item.quantity
-                ? ` — ${item.quantity}`
-                : "";
-              lines.push(`✓ ${item.name}${quantity}`);
-            });
-          }
+  if (lines.length === 0) {
+    return "⚠️ Tu n'as coché aucun produit à partager.";
+  }
 
-          lines.push("");
-          lines.push(
-            `📊 ${bought.length}/${list.length} produit(s) acheté(s)`
-          );
-          lines.push("━━━━━━━━━━━━━━━━━━");
-        }
+  return "🛒 *Mes courses achetées*\n\n" + lines.join("\n").trim();
+}
 
-        lines.push("");
-        lines.push("📱 Envoyé depuis mon application Mes Courses.");
 
-        return lines.join("\n");
-      }
 
+
+      
       function shareWhatsApp() {
         const message = buildWhatsAppMessage();
         const url = "https://wa.me/?text=" + encodeURIComponent(message);
