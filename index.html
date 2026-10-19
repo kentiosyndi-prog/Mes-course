@@ -750,7 +750,7 @@ function buildWhatsAppMessage() {
   ].filter(item => item.checked);
 
   const lines = [
-    "MES LISTES DE COURSES",
+    "Ma Liste",
     "",
     ...checkedProducts.map(item =>
       `✓ ${item.name}${item.quantity ? " — " + item.quantity : ""}`
